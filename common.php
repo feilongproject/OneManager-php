@@ -486,16 +486,16 @@ function proxy_replace_domain($url, $domainforproxy, &$header)
     $http = $tmp[0];
     $tmp = splitfirst($tmp[1], '/');
     $domain = $tmp[0];
-    $header['Origindomain'] = $domain;
     $uri = $tmp[1];
     if (substr($domainforproxy, 0, 7)=='http://' || substr($domainforproxy, 0, 8)=='https://') $aim = $domainforproxy;
     else $aim = $http . '//' . $domainforproxy;
     if (substr($aim, -1)=='/') $aim = substr($aim, 0, -1);
-    $header['Location'] = $aim . '/' . $uri;
-    return $aim . '/' . $uri;
-    //if (strpos($url, '?')>0) $sp = '&';
-    //else $sp = '?';
-    //return $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
+    //$header['Location'] = $aim . '/' . $uri;
+    //return $aim . '/' . $uri;
+    if (strpos($url, '?')>0) $sp = '&';
+    else $sp = '?';
+    $header['Location'] = $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
+    return $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
 }
 
 function isHideFile($name)
