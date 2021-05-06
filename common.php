@@ -484,7 +484,7 @@ function proxy_replace_domain($url, $domainforproxy, &$header)
 {
     $tmp = splitfirst($url, '//');
     $http = $tmp[0];
-    $header['Origindomain'] = $http;
+    $header['Origindomain'] = $http . '//';
     $tmp = splitfirst($tmp[1], '/');
     $domain = $tmp[0];
     $header['Origindomain'] .= $domain;
