@@ -316,7 +316,7 @@ function main($path)
                 if ($thumb_url!='') {
                     if ($_GET['location']) {
                         $url = $thumb_url;
-                        $header['Location'] = $url;
+                        //$header['Location'] = $url;
                         $domainforproxy = '';
                         $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                         if ($domainforproxy!='') {
@@ -363,7 +363,7 @@ function main($path)
             if (count($tmp)>0) {
                 $url = $tmp[rand(0, count($tmp)-1)];
                 if (isset($_GET['url'])) return output($url, 200);
-                $header['Location'] = $url;
+                //$header['Location'] = $url;
                 $domainforproxy = '';
                 $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                 if ($domainforproxy!='') {
@@ -380,7 +380,7 @@ function main($path)
             if ( strtolower(splitlast($files['name'], '.')[1])=='html' ) return output($files['content']['body'], $files['content']['stat']);
             else {
                 if ($_SERVER['HTTP_RANGE']!='') $header['Range'] = $_SERVER['HTTP_RANGE'];
-                $header['Location'] = $url;
+                //$header['Location'] = $url;
                 $domainforproxy = '';
                 $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                 if ($domainforproxy!='') {
@@ -482,6 +482,7 @@ function compareadminsha1($adminsha1, $timestamp, $pass)
 
 function proxy_replace_domain($url, $domainforproxy, &$header)
 {
+    global $drive;
     $tmp = splitfirst($url, '//');
     $http = $tmp[0];
     $tmp = splitfirst($tmp[1], '/');
@@ -494,7 +495,9 @@ function proxy_replace_domain($url, $domainforproxy, &$header)
     //return $aim . '/' . $uri;
     if (strpos($url, '?')>0) $sp = '&';
     else $sp = '?';
-    $header['Location'] = $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
+    $aim .= '/' . $uri . $sp . 'Origindomain=' . $domain;
+    if ($drive->show_base_class()=='Aliyundrive') $aim .= '&Aliyundrive';
+    $header['Location'] = $aim;
     return $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
 }
 
