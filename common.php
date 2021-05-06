@@ -316,12 +316,13 @@ function main($path)
                 if ($thumb_url!='') {
                     if ($_GET['location']) {
                         $url = $thumb_url;
+                        $header['Location'] = $url;
                         $domainforproxy = '';
                         $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                         if ($domainforproxy!='') {
-                            $url = proxy_replace_domain($url, $domainforproxy);
+                            $url = proxy_replace_domain($url, $domainforproxy, $header);
                         }
-                        return output('', 302, [ 'Location' => $url ]);
+                        return output('', 302, $header);
                     } else return output($thumb_url);
                 }
                 return output('', 404);
@@ -362,12 +363,13 @@ function main($path)
             if (count($tmp)>0) {
                 $url = $tmp[rand(0, count($tmp)-1)];
                 if (isset($_GET['url'])) return output($url, 200);
+                $header['Location'] = $url;
                 $domainforproxy = '';
                 $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                 if ($domainforproxy!='') {
-                    $url = proxy_replace_domain($url, $domainforproxy);
+                    $url = proxy_replace_domain($url, $domainforproxy, $header);
                 }
-                return output('', 302, [ 'Location' => $url ]);
+                return output('', 302, $header);
             } else return output('No ' . $_GET['random'] . 'file', 404);
         } else return output('Hidden', 401);
     }
@@ -375,15 +377,15 @@ function main($path)
     if ($files['type']=='file' && !isset($_GET['preview'])) {
         if ( $_SERVER['ishidden']<4 || (!!getConfig('downloadencrypt', $_SERVER['disktag'])&&$files['name']!=getConfig('passfile')) ) {
             $url = $files['url'];
-            $domainforproxy = '';
-            $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
-            if ($domainforproxy!='') {
-                $url = proxy_replace_domain($url, $domainforproxy);
-            }
             if ( strtolower(splitlast($files['name'], '.')[1])=='html' ) return output($files['content']['body'], $files['content']['stat']);
             else {
                 if ($_SERVER['HTTP_RANGE']!='') $header['Range'] = $_SERVER['HTTP_RANGE'];
                 $header['Location'] = $url;
+                $domainforproxy = '';
+                $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
+                if ($domainforproxy!='') {
+                    $url = proxy_replace_domain($url, $domainforproxy, $header);
+                }
                 return output('', 302, $header);
             }
         }
@@ -466,6 +468,7 @@ function compareadminmd5($admincookie, $name, $pass)
     if (md5($name . ':' . md5($pass) . '@' . $c_time) == $c_md5) return true;
     else return false;
 }
+
 function compareadminsha1($adminsha1, $timestamp, $pass)
 {
     if (!is_numeric($timestamp)) return 'Timestamp not Number';
@@ -477,19 +480,22 @@ function compareadminsha1($adminsha1, $timestamp, $pass)
     else return 'Error password';
 }
 
-function proxy_replace_domain($url, $domainforproxy)
+function proxy_replace_domain($url, $domainforproxy, &$header)
 {
     $tmp = splitfirst($url, '//');
     $http = $tmp[0];
+    $header['Origindomain'] = $http;
     $tmp = splitfirst($tmp[1], '/');
     $domain = $tmp[0];
+    $header['Origindomain'] .= $domain;
     $uri = $tmp[1];
     if (substr($domainforproxy, 0, 7)=='http://' || substr($domainforproxy, 0, 8)=='https://') $aim = $domainforproxy;
     else $aim = $http . '//' . $domainforproxy;
     if (substr($aim, -1)=='/') $aim = substr($aim, 0, -1);
-    if (strpos($url, '?')>0) $sp = '&';
-    else $sp = '?';
-    return $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
+    return $aim . '/' . $uri;
+    //if (strpos($url, '?')>0) $sp = '&';
+    //else $sp = '?';
+    //return $aim . '/' . $uri . $sp . 'Origindomain=' . $domain;
     //$url = str_replace($tmp, $domainforproxy, $url).'&Origindomain='.$tmp;
 }
 
