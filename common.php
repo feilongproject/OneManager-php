@@ -316,7 +316,7 @@ function main($path)
                 if ($thumb_url!='') {
                     if ($_GET['location']) {
                         $url = $thumb_url;
-                        //$header['Location'] = $url;
+                        $header['Location'] = $url;
                         $domainforproxy = '';
                         $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                         if ($domainforproxy!='') {
@@ -363,7 +363,7 @@ function main($path)
             if (count($tmp)>0) {
                 $url = $tmp[rand(0, count($tmp)-1)];
                 if (isset($_GET['url'])) return output($url, 200);
-                //$header['Location'] = $url;
+                $header['Location'] = $url;
                 $domainforproxy = '';
                 $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                 if ($domainforproxy!='') {
@@ -380,7 +380,7 @@ function main($path)
             if ( strtolower(splitlast($files['name'], '.')[1])=='html' ) return output($files['content']['body'], $files['content']['stat']);
             else {
                 if ($_SERVER['HTTP_RANGE']!='') $header['Range'] = $_SERVER['HTTP_RANGE'];
-                //$header['Location'] = $url;
+                $header['Location'] = $url;
                 $domainforproxy = '';
                 $domainforproxy = getConfig('domainforproxy', $_SERVER['disktag']);
                 if ($domainforproxy!='') {
